@@ -43,8 +43,13 @@ package com.mycompany.app;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Value;
 import javax.script.ScriptEngineManager;
+import javax.script.SimpleBindings;
+import javax.script.SimpleScriptContext;
 import javax.script.ScriptEngine;
+import javax.script.Bindings;
 import javax.script.Invocable;
+import javax.script.ScriptContext;
+
 import java.io.IOException;
 import org.graalvm.polyglot.Source;
 
@@ -58,8 +63,6 @@ public class App {
     public static final String BENCHFILE = "src/bench.js";
 
     public static final String SOURCE = ""
-            + "var N = 2000;\n"
-            + "var EXPECTED = 17393;\n"
             + "\n"
             + "function Natural() {\n"
             + "    x = 2;\n"
@@ -122,6 +125,8 @@ public class App {
         long took = 0;
         try (Context context = Context.create()) {
             context.eval(Source.newBuilder("js", SOURCE, "src.js").build());
+            context.getBindings("js").putMember("N", 2000);
+            context.getBindings("js").putMember("EXPECTED", 17393);
             Value primesMain = context.getBindings("js").getMember("primesMain");
             System.out.println("warming up ...");
             for (int i = 0; i < WARMUP; i++) {
@@ -163,6 +168,7 @@ public class App {
     private static long benchScriptEngineIntl(ScriptEngine eng) throws IOException {
         long took = 0L;
         try {
+            eng.setContext(createContext());
             eng.eval(SOURCE);
             Invocable inv = (Invocable) eng;
             System.out.println("warming up ...");
@@ -180,6 +186,14 @@ public class App {
             System.out.println(ex);
         }
         return took;
+    }
+
+    private static ScriptContext createContext() {
+        SimpleScriptContext context = new SimpleScriptContext();
+        context.setAttribute("N", 2000, ScriptContext.ENGINE_SCOPE);
+        context.setAttribute("EXPECTED", 17393, ScriptContext.ENGINE_SCOPE);
+
+        return context;
     }
 
 }
