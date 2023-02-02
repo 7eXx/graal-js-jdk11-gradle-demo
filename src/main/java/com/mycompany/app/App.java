@@ -128,10 +128,6 @@ public class App {
             context.getBindings("js").putMember("N", 2000);
             context.getBindings("js").putMember("EXPECTED", 17393);
             Value primesMain = context.getBindings("js").getMember("primesMain");
-            System.out.println("warming up ...");
-            for (int i = 0; i < WARMUP; i++) {
-                primesMain.execute();
-            }
             System.out.println("warmup finished, now measuring");
             for (int i = 0; i < ITERATIONS; i++) {
                 long start = System.currentTimeMillis();
@@ -171,10 +167,6 @@ public class App {
             eng.setContext(createContext());
             eng.eval(SOURCE);
             Invocable inv = (Invocable) eng;
-            System.out.println("warming up ...");
-            for (int i = 0; i < WARMUP; i++) {
-                inv.invokeFunction("primesMain");
-            }
             System.out.println("warmup finished, now measuring");
             for (int i = 0; i < ITERATIONS; i++) {
                 long start = System.currentTimeMillis();
